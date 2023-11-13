@@ -98,26 +98,26 @@ public class MeshGenerator : MonoBehaviour
 
         struct CellToVertexIdMaps : IDisposable
         {
-            NativeHashMap<int, ushort> cellToVertexId;
-            NativeHashMap<int, ushort> cellToVertexId_seamX;
-            NativeHashMap<int, ushort> cellToVertexId_seamY;
-            NativeHashMap<int, ushort> cellToVertexId_seamZ;
-            NativeHashMap<int, ushort> cellToVertexId_seamXY;
-            NativeHashMap<int, ushort> cellToVertexId_seamYZ;
-            NativeHashMap<int, ushort> cellToVertexId_seamXZ;
+            NativeParallelHashMap<int, ushort> cellToVertexId;
+            NativeParallelHashMap<int, ushort> cellToVertexId_seamX;
+            NativeParallelHashMap<int, ushort> cellToVertexId_seamY;
+            NativeParallelHashMap<int, ushort> cellToVertexId_seamZ;
+            NativeParallelHashMap<int, ushort> cellToVertexId_seamXY;
+            NativeParallelHashMap<int, ushort> cellToVertexId_seamYZ;
+            NativeParallelHashMap<int, ushort> cellToVertexId_seamXZ;
 
             public CellToVertexIdMaps(int capacity, Allocator allocator)
             {
-                cellToVertexId = new NativeHashMap<int, ushort>(capacity, allocator);
-                cellToVertexId_seamX = new NativeHashMap<int, ushort>(capacity/2, allocator);
-                cellToVertexId_seamY = new NativeHashMap<int, ushort>(capacity/2, allocator);
-                cellToVertexId_seamZ = new NativeHashMap<int, ushort>(capacity/2, allocator);
-                cellToVertexId_seamXY = new NativeHashMap<int, ushort>(capacity/2, allocator);
-                cellToVertexId_seamYZ = new NativeHashMap<int, ushort>(capacity/2, allocator);
-                cellToVertexId_seamXZ = new NativeHashMap<int, ushort>(capacity/2, allocator);
+                cellToVertexId = new NativeParallelHashMap<int, ushort>(capacity, allocator);
+                cellToVertexId_seamX = new NativeParallelHashMap<int, ushort>(capacity/2, allocator);
+                cellToVertexId_seamY = new NativeParallelHashMap<int, ushort>(capacity/2, allocator);
+                cellToVertexId_seamZ = new NativeParallelHashMap<int, ushort>(capacity/2, allocator);
+                cellToVertexId_seamXY = new NativeParallelHashMap<int, ushort>(capacity/2, allocator);
+                cellToVertexId_seamYZ = new NativeParallelHashMap<int, ushort>(capacity/2, allocator);
+                cellToVertexId_seamXZ = new NativeParallelHashMap<int, ushort>(capacity/2, allocator);
             }
 
-            public NativeHashMap<int, ushort> GetMap(Location location)
+            public NativeParallelHashMap<int, ushort> GetMap(Location location)
             {
                 return location switch
                 {
@@ -151,7 +151,7 @@ public class MeshGenerator : MonoBehaviour
             CellToVertexIdMaps cellToVertexIdMaps = new CellToVertexIdMaps(64, Allocator.Temp);
 
             NativeList<Vertex> vertices = new NativeList<Vertex>(64, Allocator.Temp);
-            NativeMultiHashMap<byte, Triangle> triangles = new NativeMultiHashMap<byte, Triangle>(64, Allocator.Temp);
+            NativeParallelMultiHashMap<byte, Triangle> triangles = new NativeParallelMultiHashMap<byte, Triangle>(64, Allocator.Temp);
 
             ProcessMainChunk(cellToVertexIdMaps, vertices, triangles);
 
@@ -171,7 +171,7 @@ public class MeshGenerator : MonoBehaviour
             triangles.Dispose();
         }
 
-        void ProcessMainChunk(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeMultiHashMap<byte, Triangle> triangles)
+        void ProcessMainChunk(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeParallelMultiHashMap<byte, Triangle> triangles)
         {
             var cellToVertexId = cellToVertexIdMaps.GetMap(Location.main);
             int3 length3D = mainChunk.materials.GetLength3D();
@@ -205,7 +205,7 @@ public class MeshGenerator : MonoBehaviour
         }
 
         // TODO: One reusable/generic method for processing seams
-        void ProcessSeamX(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeMultiHashMap<byte, Triangle> triangles)
+        void ProcessSeamX(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeParallelMultiHashMap<byte, Triangle> triangles)
         {
             int3 main_length3D = mainChunk.materials.GetLength3D();
             int3 seamX_length3D = seamX.materials.GetLength3D();
@@ -253,7 +253,7 @@ public class MeshGenerator : MonoBehaviour
             }  
         }
 
-        void ProcessSeamY(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeMultiHashMap<byte, Triangle> triangles)
+        void ProcessSeamY(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeParallelMultiHashMap<byte, Triangle> triangles)
         {
             int3 main_length3D = mainChunk.materials.GetLength3D();
             int3 seamY_length3D = seamY.materials.GetLength3D();
@@ -301,7 +301,7 @@ public class MeshGenerator : MonoBehaviour
             }
         }
 
-        void ProcessSeamZ(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeMultiHashMap<byte, Triangle> triangles)
+        void ProcessSeamZ(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeParallelMultiHashMap<byte, Triangle> triangles)
         {
             int3 main_length3D = mainChunk.materials.GetLength3D();
             int3 seamZ_length3D = seamZ.materials.GetLength3D();
@@ -349,7 +349,7 @@ public class MeshGenerator : MonoBehaviour
             }
         }
         
-        void ProcessSeamXY(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeMultiHashMap<byte, Triangle> triangles)
+        void ProcessSeamXY(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeParallelMultiHashMap<byte, Triangle> triangles)
         {
             Location edgeLocation;
             VoxelGrid edgeVoxelGrid;
@@ -413,7 +413,7 @@ public class MeshGenerator : MonoBehaviour
             }
         }
 
-        void ProcessSeamYZ(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeMultiHashMap<byte, Triangle> triangles)
+        void ProcessSeamYZ(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeParallelMultiHashMap<byte, Triangle> triangles)
         {
             Location edgeLocation;
             VoxelGrid edgeVoxelGrid;
@@ -475,7 +475,7 @@ public class MeshGenerator : MonoBehaviour
             }
         }
 
-        void ProcessSeamXZ(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeMultiHashMap<byte, Triangle> triangles)
+        void ProcessSeamXZ(CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeParallelMultiHashMap<byte, Triangle> triangles)
         {
             Location edgeLocation;
             VoxelGrid edgeVoxelGrid;
@@ -542,7 +542,7 @@ public class MeshGenerator : MonoBehaviour
             return (materials[edgeStart] == 0 && materials[edgeEnd] != 0) || (materials[edgeStart] != 0 && materials[edgeEnd] == 0);
         }
 
-        void CreateFace(int3 edgeStart, int3 edgeEnd, NativeHashMap<int, ushort> cellToVertexId, NativeList<Vertex> vertices, NativeMultiHashMap<byte, Triangle> triangles)
+        void CreateFace(int3 edgeStart, int3 edgeEnd, NativeParallelHashMap<int, ushort> cellToVertexId, NativeList<Vertex> vertices, NativeParallelMultiHashMap<byte, Triangle> triangles)
         {
             VoxelGrid voxelGrid = mainChunk;
             byte edgeMaterial = (byte)(voxelGrid.materials[edgeStart] + voxelGrid.materials[edgeEnd]);
@@ -567,7 +567,7 @@ public class MeshGenerator : MonoBehaviour
             triangles.Add(edgeMaterial, triangle2);
         }
 
-        void CreateSeamFace(SeamEdge seamEdge, CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeMultiHashMap<byte, Triangle> triangles)
+        void CreateSeamFace(SeamEdge seamEdge, CellToVertexIdMaps cellToVertexIdMaps, NativeList<Vertex> vertices, NativeParallelMultiHashMap<byte, Triangle> triangles)
         {
             VoxelGrid edgeVoxelGrid = GetVoxelGrid(seamEdge.location);
             byte edgeMaterial = (byte)(edgeVoxelGrid.materials[seamEdge.start] + edgeVoxelGrid.materials[seamEdge.end]);
@@ -668,7 +668,7 @@ public class MeshGenerator : MonoBehaviour
             adjacentCell = (adjacentCellGlobalPosition - SEAM_OFFSETS[(int)adjacentCellLocation] * new int3(edgeLocationResolution)) / LODfactor;
         }
 
-        ushort TryCreateAndGetVertexId(int3 cellOrigin, VoxelGrid voxelGrid, NativeHashMap<int, ushort> cellToVertexId, NativeList<Vertex> vertices) 
+        ushort TryCreateAndGetVertexId(int3 cellOrigin, VoxelGrid voxelGrid, NativeParallelHashMap<int, ushort> cellToVertexId, NativeList<Vertex> vertices) 
         {
             int key = voxelGrid.materials.GetIndex1D(cellOrigin);
 
@@ -857,7 +857,7 @@ public class MeshGenerator : MonoBehaviour
         }
     }
 
-    static void FillMeshData(in NativeList<Vertex> vertices, in NativeMultiHashMap<byte, Triangle> triangles, MeshData meshData, NativeList<byte> matIdPerSubmesh)
+    static void FillMeshData(in NativeList<Vertex> vertices, in NativeParallelMultiHashMap<byte, Triangle> triangles, MeshData meshData, NativeList<byte> matIdPerSubmesh)
     {
         //VERTEX BUFFER DATA
         NativeArray<VertexAttributeDescriptor> nativeLayout = new NativeArray<VertexAttributeDescriptor>(1, Allocator.Temp);
